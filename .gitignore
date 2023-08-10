@@ -1,3 +1,4 @@
 /mind-logs/
 
-/.idea/
+/.idea/*
+*.iml
