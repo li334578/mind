@@ -39,9 +39,9 @@ export default {
   mounted: function () {
     let path = this.$route.path;
     // 页面加载完成之后，获取用户信息
-    const mainUserId = localStorage.getItem("mainUserId");
-    if (path === '/login' || path === '/register' || mainUserId) {
-      console.log("mainUserId", mainUserId)
+    const tokenInfo = localStorage.getItem("tokenInfo");
+    if (path === '/login' || path === '/register' || tokenInfo) {
+      // 不用跳转
     } else {
       // 转到登录页面
       console.log(this.$route.path)

@@ -15,7 +15,13 @@ Vue.prototype.$axios = axios
 // 请求拦截器
 axios.interceptors.request.use(
   config => {
-    config.headers.Authorization = localStorage.getItem('token')
+    let token = localStorage.getItem('tokenInfo');
+    if (token) {
+      let parseToken = JSON.parse(token);
+      let tokenName = parseToken.tokenName;
+      let tokenValue = parseToken.tokenValue;
+      config.headers[tokenName] = tokenValue;
+    }
     config.url = "/api" + config.url
     return config
   },
@@ -32,6 +38,7 @@ axios.interceptors.response.use(
       return response.data;
     } else if (code === 401) {
       // 去登陆
+      localStorage.removeItem("tokenInfo")
       router.push("/login")
     } else {
       alert("报错了" + response.data.msg)

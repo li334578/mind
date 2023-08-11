@@ -51,7 +51,7 @@ export default {
         if (!err) {
           this.$axios.post("/user/doLogin", values).then((res) => {
             // 登录成功
-            localStorage.setItem("mainUserId", res.data)
+            localStorage.setItem("tokenInfo", JSON.stringify(res.data))
             this.$router.push("/")
           })
         }

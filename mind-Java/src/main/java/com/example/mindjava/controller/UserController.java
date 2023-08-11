@@ -1,6 +1,7 @@
 package com.example.mindjava.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.digest.MD5;
@@ -37,7 +38,7 @@ public class UserController {
     }
 
     @PostMapping("doLogin")
-    public ResultBean<Long> doLogin(@RequestBody User user) {
+    public ResultBean<SaTokenInfo> doLogin(@RequestBody User user) {
         // 此处仅作模拟示例，真实项目需要从数据库中查询数据进行比对
         Optional<User> userOptional = userService.getByUsername(user.getUsername());
         if (userOptional.isPresent()) {
@@ -45,7 +46,7 @@ public class UserController {
             executorService.execute(() -> userService.incrementLoginCountAndUpdateLastLoginTimeById(dbUser.getId()));
             StpUtil.login(dbUser.getId());
             StpUtil.getSession().set("user", dbUser);
-            return ResultBean.success(dbUser.getId());
+            return ResultBean.success(StpUtil.getTokenInfo());
         }
         return ResultBean.error(ResultCode.PARAM_ERROR, "用户名或密码错误");
     }
