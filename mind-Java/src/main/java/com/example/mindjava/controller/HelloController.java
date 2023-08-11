@@ -1,6 +1,7 @@
 package com.example.mindjava.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
+import com.example.mindjava.bean.ResultBean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SaCheckLogin
 public class HelloController {
     @GetMapping("/world")
-    public String helloWorld() {
-        return "Hello World!";
+    public ResultBean<String> helloWorld() {
+        return ResultBean.success("Hello World!");
     }
 }

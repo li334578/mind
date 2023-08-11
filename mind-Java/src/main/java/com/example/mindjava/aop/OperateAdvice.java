@@ -40,9 +40,11 @@ public class OperateAdvice {
         String url = request.getRequestURL().toString();
         Object object = proceedingJoinPoint.proceed();
         // 请求人
-        User user = (User) StpUtil.getSession().get("user");
-        log.info("用户 {} IP地址：{}，请求路径：{}，请求参数：{}，返回结果：{}", user == null ? null : user.getUsername(),
-                ip, url, args, object);
+        if (StpUtil.isLogin()) {
+            User user = (User) StpUtil.getSession().get("user");
+            log.info("用户 {} IP地址：{}，请求路径：{}，请求参数：{}，返回结果：{}", user.getUsername(),
+                    ip, url, args, object);
+        }
         return object;
     }
 }

@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping("doLogin")
-    public ResultBean doLogin(@RequestBody User user) {
+    public ResultBean<Long> doLogin(@RequestBody User user) {
         // 此处仅作模拟示例，真实项目需要从数据库中查询数据进行比对
         Optional<User> userOptional = userService.getByUsername(user.getUsername());
         if (userOptional.isPresent()) {

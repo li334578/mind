@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>图书管理系统</h1>
+  <div id="app">
+    <h1>这里是 booksy</h1>
   </div>
 </template>
 

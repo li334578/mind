@@ -5,14 +5,46 @@ import 'ant-design-vue/dist/antd.css'
 import Antd from 'ant-design-vue'
 import App from './App'
 import router from './router'
+import axios from 'axios'
 
 Vue.config.productionTip = false
 Vue.use(Antd)
+Vue.prototype.$axios = axios
 
-/* eslint-disable no-new */
+
+// 请求拦截器
+axios.interceptors.request.use(
+  config => {
+    config.headers.Authorization = localStorage.getItem('token')
+    config.url = "/api" + config.url
+    return config
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器
+axios.interceptors.response.use(
+  response => {
+    let code = response.data.code;
+    if (code === 200) {
+      return response.data;
+    } else if (code === 401) {
+      // 去登陆
+      router.push("/login")
+    } else {
+      alert("报错了" + response.data.msg)
+    }
+  },
+  error => {
+    return Promise.reject(error)
+  }
+)
+
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {App},
   template: '<App/>'
 })
