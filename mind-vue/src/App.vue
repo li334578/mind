@@ -44,7 +44,6 @@ export default {
       // 不用跳转
     } else {
       // 转到登录页面
-      console.log(this.$route.path)
       if (path !== '/login') {
         this.$router.push('/login')
       }

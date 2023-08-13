@@ -14,7 +14,6 @@ public class SaTokenConfigure implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         // 注册 Sa-Token 拦截器，打开注解式鉴权功能
         registry.addInterceptor(new SaInterceptor(handler -> {
-                    System.out.println("-------- 前端访问path：" + SaHolder.getRequest().getRequestPath());
                     StpUtil.checkLogin();
                 })).addPathPatterns("/**")
                 .excludePathPatterns("/user/**");

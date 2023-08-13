@@ -1,7 +1,9 @@
 package com.example.mindjava.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.mindjava.bean.ResultBean;
+import com.example.mindjava.bean.ResultCode;
 import com.example.mindjava.entity.Bubble;
 import com.example.mindjava.service.BubbleService;
 import com.example.mindjava.util.StpInfoUtil;
@@ -24,6 +26,9 @@ public class BubbleController {
 
     @PutMapping
     public ResultBean doCreateBubble(@RequestBody Bubble bubble) {
+        if (bubble.getContent().length() > 500) {
+            return ResultBean.error(ResultCode.PARAM_ERROR, "内容长度不能超过200");
+        }
         if (Objects.isNull(bubble.getType())) {
             bubble.setType(1);
         }
@@ -33,10 +38,13 @@ public class BubbleController {
         return ResultBean.success();
     }
 
-    @GetMapping
-    public ResultBean doListBubble(@RequestBody Bubble bubble) {
+    @PostMapping("page")
+    public ResultBean doPageBubble(@RequestBody Bubble bubble) {
         Page<Bubble> page = new Page<>(bubble.getCurrentPage(), bubble.getPageSize());
-        return ResultBean.success(bubbleService.page(page));
+        return ResultBean.success(bubbleService.page(page, new LambdaQueryWrapper<Bubble>()
+                .eq(Objects.nonNull(bubble.getIsDelete()), Bubble::getIsDelete, bubble.getIsDelete())
+                .eq(Objects.nonNull(bubble.getType()), Bubble::getType, bubble.getType())
+                .orderByDesc(Bubble::getUpdateTime)));
     }
 
     @GetMapping("{id}")
