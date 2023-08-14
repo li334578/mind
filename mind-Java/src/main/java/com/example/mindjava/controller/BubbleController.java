@@ -1,6 +1,7 @@
 package com.example.mindjava.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.mindjava.bean.ResultBean;
 import com.example.mindjava.bean.ResultCode;
@@ -40,11 +41,12 @@ public class BubbleController {
 
     @PostMapping("page")
     public ResultBean doPageBubble(@RequestBody Bubble bubble) {
-        Page<Bubble> page = new Page<>(bubble.getCurrentPage(), bubble.getPageSize());
+        IPage<Bubble> page = new Page<>(bubble.getCurrentPage(), bubble.getPageSize());
         return ResultBean.success(bubbleService.page(page, new LambdaQueryWrapper<Bubble>()
                 .eq(Objects.nonNull(bubble.getIsDelete()), Bubble::getIsDelete, bubble.getIsDelete())
                 .eq(Objects.nonNull(bubble.getType()), Bubble::getType, bubble.getType())
-                .orderByDesc(Bubble::getUpdateTime)));
+                .like(Objects.nonNull(bubble.getContent()), Bubble::getContent, bubble.getContent())
+                .orderByDesc(Bubble::getPriorityValue, Bubble::getUpdateTime)));
     }
 
     @GetMapping("{id}")

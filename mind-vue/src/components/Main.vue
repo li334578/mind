@@ -5,13 +5,13 @@
     </a-button>
     <a-select style="width: 120px" :value="filterType" :allowClear="true" @change="filterByType">
       <a-icon slot="suffixIcon" type="smile"/>
-      <a-select-option value="1">
+      <a-select-option :value="1">
         临时存储
       </a-select-option>
-      <a-select-option value="2">
+      <a-select-option :value="2">
         长时存储
       </a-select-option>
-      <a-select-option value="3">
+      <a-select-option :value="3">
         永久存储
       </a-select-option>
     </a-select>
@@ -24,18 +24,20 @@
         已删除
       </a-select-option>
     </a-select>
-    <a-table bordered :data-source="dataList" :columns="columns">
+    <a-input-search placeholder="输入搜索内容" style="width: 200px" @search="filterByContent"/>
+    <a-table bordered :pagination="bubblePagination" @change="updateBubbleTable" :data-source="dataList"
+             :columns="columns">
       <template slot="content" slot-scope="text, record">
         <editable-cell :text="text" @change="onCellChange(record.id, 'content', $event)"/>
       </template>
       <template slot="type" slot-scope="text, record, index">
-        <span v-if="text == '1'">临时存储</span>
-        <span v-if="text == '2'">长时存储</span>
-        <span v-if="text == '3'">永久存储</span>
+        <span v-if="text === 1">临时存储</span>
+        <span v-if="text === 2">长时存储</span>
+        <span v-if="text === 3">永久存储</span>
       </template>
       <template slot="isDelete" slot-scope="text, record, index">
-        <span v-if="text == 0">未删除</span>
-        <span v-if="text == 1">已删除</span>
+        <span v-if="text === 0">未删除</span>
+        <span v-if="text === 1">已删除</span>
       </template>
       <template slot="operation" slot-scope="text, record">
         <a-button type="link" @click="onUpdate(record.id)">
@@ -53,22 +55,27 @@
     </a-table>
     <a-modal v-model="visibleAddBubble" title="新增Bubble" ok-text="确认" cancel-text="取消" @ok="commitBubble"
              destroyOnClose:=true>
-      <span>内容</span>
-      <a-textarea placeholder="请输入内容" :allowClear=true v-model="bubble.content" auto-size/>
+      <a-form-item label="内容">
+        <a-textarea placeholder="请输入内容" :allowClear=true v-model="bubble.content" auto-size/>
+      </a-form-item>
       <div style="margin: 24px 0"/>
-      <a-radio-group v-model="bubble.type">
-        <a-radio-button value="1">
-          临时存储
-        </a-radio-button>
-        <a-radio-button value="2">
-          长时存储
-        </a-radio-button>
-        <a-radio-button value="3">
-          永久存储
-        </a-radio-button>
-      </a-radio-group>
+      <a-form-item label="类型">
+        <a-radio-group v-model="bubble.type">
+          <a-radio-button :value="1">
+            临时存储
+          </a-radio-button>
+          <a-radio-button :value="2">
+            长时存储
+          </a-radio-button>
+          <a-radio-button :value="3">
+            永久存储
+          </a-radio-button>
+        </a-radio-group>
+      </a-form-item>
       <div :style="{ marginTop: '16px' }"/>
-      <a-input-number label="优先级" id="inputNumber" v-model="bubble.priorityValue" :min="0" :max="100"/>
+      <a-form-item label="优先级">
+        <a-input-number label="优先级" id="inputNumber" v-model="bubble.priorityValue" :min="0" :max="100"/>
+      </a-form-item>
     </a-modal>
 
     <a-modal v-model="visibleUpdateBubble" title="修改Bubble" ok-text="确认" cancel-text="取消" @ok="updateBubble"
@@ -97,18 +104,18 @@
 const EditableCell = {
   template: `
     <div class="editable-cell">
-      <div v-if="editable" class="editable-cell-input-wrapper">
-        <a-input :value="value" @change="handleChange" @pressEnter="check"/>
-        <a-icon
-          type="check"
-          class="editable-cell-icon-check"
-          @click="check"
-        />
-      </div>
-      <div v-else class="editable-cell-text-wrapper">
-        {{ value || ' ' }}
-        <a-icon type="edit" class="editable-cell-icon" @click="edit"/>
-      </div>
+    <div v-if="editable" class="editable-cell-input-wrapper">
+      <a-input :value="value" @change="handleChange" @pressEnter="check"/>
+      <a-icon
+        type="check"
+        class="editable-cell-icon-check"
+        @click="check"
+      />
+    </div>
+    <div v-else class="editable-cell-text-wrapper">
+      {{ value || ' ' }}
+      <a-icon type="edit" class="editable-cell-icon" @click="edit"/>
+    </div>
     </div>
   `,
   props: {
@@ -149,6 +156,15 @@ export default {
       visibleAddBubble: false,
       visibleUpdateBubble: false,
       dataList,
+      bubblePagination: {
+        current: 1,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        defaultPageSize: 10,
+        total: 0,
+        pageSize: 10,
+        showTotal: total => `共 ${total} 条数据`,
+      },
       columns: [
         {
           title: '内容',
@@ -183,11 +199,12 @@ export default {
       bubble: {
         id: '',
         content: '',
-        type: "1",
+        type: 1,
         priorityValue: 0
       },
       filterType: undefined,
-      filterDelete: undefined
+      filterDelete: undefined,
+      filterContent: undefined,
     }
   },
   methods: {
@@ -222,11 +239,18 @@ export default {
     handleAdd() {
       this.visibleAddBubble = true;
     },
-    pageBubble(type, isDelete) {
-      let pageRequest = {currentPage: 1, pageSize: 20, type: type, isDelete: isDelete}
+    pageBubble() {
+      let pageRequest = {
+        currentPage: this.bubblePagination.current,
+        pageSize: this.bubblePagination.pageSize,
+        type: this.filterType,
+        isDelete: this.filterDelete,
+        content: this.filterContent,
+      }
       // 查询数据
       this.$axios.post("/bubble/page", pageRequest).then((res) => {
         this.dataList = res.data.records.map(obj => ({key: obj.id, ...obj}))
+        this.bubblePagination.total = res.data.total
       })
     },
     commitBubble() {
@@ -263,16 +287,21 @@ export default {
       })
       this.visibleUpdateBubble = false;
     },
-    filterByCondition() {
-      this.pageBubble(this.filterType, this.filterDelete)
-    },
     filterByType(value) {
       this.filterType = value;
-      this.filterByCondition();
+      this.pageBubble();
     },
     filterByIsDelete(value) {
       this.filterDelete = value;
-      this.filterByCondition();
+      this.pageBubble();
+    },
+    filterByContent(value) {
+      this.filterContent = value;
+      this.pageBubble();
+    },
+    updateBubbleTable(value) {
+      this.bubblePagination = value
+      this.pageBubble();
     },
   },
 }
