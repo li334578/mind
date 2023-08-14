@@ -1,6 +1,5 @@
 package com.example.mindjava.config.thread;
 
-import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.*;
@@ -8,19 +7,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class DIYMyThreadPool extends ThreadPoolExecutor {
-    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, @NotNull TimeUnit unit,
-                           @NotNull DIYMyBlockingQueue<Runnable> workQueue, @NotNull ThreadFactory threadFactory,
-                           @NotNull RejectedExecutionHandler handler) {
+    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
+                           DIYMyBlockingQueue<Runnable> workQueue, ThreadFactory threadFactory,
+                           RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
     }
 
-    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, @NotNull TimeUnit unit,
-                           @NotNull DIYMyBlockingQueue<Runnable> workQueue, @NotNull RejectedExecutionHandler handler) {
+    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
+                           DIYMyBlockingQueue<Runnable> workQueue, RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, Executors.defaultThreadFactory(), handler);
     }
 
-    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, @NotNull TimeUnit unit,
-                           @NotNull DIYMyBlockingQueue<Runnable> workQueue) {
+    public DIYMyThreadPool(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,
+                           DIYMyBlockingQueue<Runnable> workQueue) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
     }
 
@@ -41,7 +40,7 @@ public class DIYMyThreadPool extends ThreadPoolExecutor {
     }
 
     @Override
-    public void execute(@NotNull Runnable command) {
+    public void execute(Runnable command) {
         // 提交任务 计数+1
         submittedTaskCount.incrementAndGet();
         try {

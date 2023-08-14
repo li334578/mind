@@ -1,6 +1,5 @@
 package com.example.mindjava.config.thread;
 
-import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
@@ -41,7 +40,7 @@ public class DIYMyBlockingQueue<R extends Runnable> extends LinkedBlockingDeque<
 
 
     @Override
-    public boolean offer(@NotNull Runnable runnable) {
+    public boolean offer(Runnable runnable) {
         if (Objects.isNull(diyMyThreadPool)) throw new NullPointerException("thread pool is null");
         if (diyMyThreadPool.getSubmittedTaskCountValue() < diyMyThreadPool.getCorePoolSize()) {
             // 有空闲线程

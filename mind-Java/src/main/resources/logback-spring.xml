@@ -183,10 +183,12 @@
 
 
     <!-- 4.2 生产环境:输出到文档-->
-    <springProfile name="pro">
-        <logger name="com.example" level="warn"/>
+    <springProfile name="prod">
+        <logger name="com.example" level="info"/>
         <logger name="org.mybatis" level="debug"/>
         <root level="info">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="INFO_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
             <appender-ref ref="WARN_FILE"/>
         </root>
