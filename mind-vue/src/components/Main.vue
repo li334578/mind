@@ -224,7 +224,7 @@ export default {
       const dataList = [...this.dataList];
       this.dataList = dataList.filter(item => item.key !== id);
       this.$axios.delete("/bubble/" + id).then((res) => {
-        console.log(res)
+        this.$message.success("删除成功");
       })
       this.pageBubble();
     },

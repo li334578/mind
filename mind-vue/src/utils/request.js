@@ -27,9 +27,13 @@ axios.interceptors.response.use(
     if (code === 200) {
       return response.data;
     } else if (code === 401) {
+      vue.$notification['error']({
+        message: '错误提示',
+        description: response.data.msg,
+      });
       // 去登陆
       localStorage.removeItem("tokenInfo")
-      router.push("/login")
+      vue.$router.push("/login")
     } else {
       vue.$notification['error']({
         message: '错误提示',

@@ -24,8 +24,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotLoginException.class)
     public ResultBean handleNotLoginException(NotLoginException e) {
-        e.printStackTrace();
-        log.error(e.getMessage());
+        log.error("未登录异常 {}", e.getMessage());
         return ResultBean.error(ResultCode.NOT_LOGIN);
     }
 

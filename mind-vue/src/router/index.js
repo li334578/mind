@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Main from '@/components/Main'
-import BookSy from '@/components/BookSy'
+import Manager from '@/components/Manager'
 import Layout from '@/components/Layout'
 import Login from '@/components/Login'
 import Register from '@/components/Register'
@@ -16,9 +16,9 @@ export default new Router({
       component: Main
     },
     {
-      path: '/bookSy',
-      name: 'BookSy',
-      component: BookSy
+      path: '/manager',
+      name: 'Manager',
+      component: Manager
     },
     {
       path: '/layout',

@@ -13,6 +13,7 @@ import com.example.mindjava.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
@@ -43,6 +44,9 @@ public class UserController {
         Optional<User> userOptional = userService.getByUsername(user.getUsername());
         if (userOptional.isPresent()) {
             User dbUser = userOptional.get();
+            if (!Objects.equals(dbUser.getPassword(), md5.digestHex16(user.getPassword()))) {
+                return ResultBean.error(ResultCode.PARAM_ERROR, "用户名或密码错误");
+            }
             executorService.execute(() -> userService.incrementLoginCountAndUpdateLastLoginTimeById(dbUser.getId()));
             StpUtil.login(dbUser.getId());
             StpUtil.getSession().set("user", dbUser);

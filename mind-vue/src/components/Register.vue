@@ -84,19 +84,32 @@
 <script>
 export default {
   name: "Register",
+  data() {
+    return {}
+  },
   beforeCreate() {
     this.form = this.$form.createForm(this, {name: 'normal_login'});
   },
   methods: {
     handleSubmit(e) {
-      e.preventDefault();
-      this.form.validateFields((err, values) => {
-        if (!err) {
-          this.$axios.post("/user/doRegister", values).then((res) => {
-            console.log(res);
-          })
+      let allowRegister = false;
+      this.$axios.get("/manager/allowRegister").then((res) => {
+        if (!res.data) {
+          this.$message.error('管理员暂时关闭了注册功能');
+        } else {
+          allowRegister = true;
         }
-      });
+      })
+      if (allowRegister) {
+        e.preventDefault();
+        this.form.validateFields((err, values) => {
+          if (!err) {
+            this.$axios.post("/user/doRegister", values).then((res) => {
+              this.$message.success("注册成功");
+            })
+          }
+        });
+      }
     },
   },
 };

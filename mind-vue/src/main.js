@@ -14,11 +14,11 @@ Vue.prototype.$axios = axios
 Vue.prototype.request = request
 
 
-var vue = new Vue({
+const vue = new Vue({
   el: '#app',
   router,
   components: {App},
   template: '<App/>'
-})
+});
 
 export default vue

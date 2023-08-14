@@ -1,6 +1,5 @@
 package com.example.mindjava.config;
 
-import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.stp.StpUtil;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +15,6 @@ public class SaTokenConfigure implements WebMvcConfigurer {
         registry.addInterceptor(new SaInterceptor(handler -> {
                     StpUtil.checkLogin();
                 })).addPathPatterns("/**")
-                .excludePathPatterns("/user/**");
+                .excludePathPatterns("/user/**", "/manager/allowRegister");
     }
 }
