@@ -12,7 +12,7 @@ axios.interceptors.request.use(
       let tokenValue = parseToken.tokenValue;
       config.headers[tokenName] = tokenValue;
     }
-    config.url = "/api" + config.url
+    config.url = process.env.API_HOST + config.url
     return config
   },
   error => {
