@@ -31,7 +31,8 @@ public class RedissonConfig {
         if (StrUtil.isEmpty(redisProperties.getPassword())) {
             config.useSingleServer()
                     .setAddress(StrUtil.format(redisConfTemp, redisProperties.getHost(), redisProperties.getPort()))
-                    .setDatabase(redisProperties.getDatabase());
+                    .setDatabase(redisProperties.getDatabase())
+                    .setConnectionMinimumIdleSize(4);
         } else {
             // 主从用该配置
             /*config.useMasterSlaveServers()
