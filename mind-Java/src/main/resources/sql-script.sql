@@ -29,3 +29,22 @@ create table t_bubble
     create_time    datetime not null comment '创建时间',
     update_time    datetime not null comment '更新时间'
 );
+
+
+create table t_role
+(
+    role_name   varchar(255) comment '角色名称',
+    role_code   varchar(255) comment '角色代号',
+    id          bigint not null primary key auto_increment comment '自增id',
+    create_time datetime comment '创建时间',
+    update_time datetime comment '更新时间'
+) comment '角色表';
+
+create table t_user_role
+(
+    user_id     bigint comment '用户id',
+    role_id     bigint comment '角色id',
+    id          bigint not null primary key auto_increment comment '自增id',
+    create_time datetime comment '创建时间',
+    update_time datetime comment '更新时间'
+) comment '用户角色关联表';

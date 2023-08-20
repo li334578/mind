@@ -1,5 +1,6 @@
 package com.example.mindjava.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.mindjava.entity.User;
 
@@ -18,4 +19,9 @@ public interface UserService extends IService<User> {
      * 根据id 增加loginCount值 更新 lastLoginTime
      */
     void incrementLoginCountAndUpdateLastLoginTimeById(Long id);
+
+    /**
+     * 根据条件查询用户信息 分页
+     */
+    IPage<User> pageUserInfo(User user);
 }

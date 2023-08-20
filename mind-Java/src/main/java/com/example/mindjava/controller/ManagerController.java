@@ -1,7 +1,10 @@
 package com.example.mindjava.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.mindjava.bean.ResultBean;
 import com.example.mindjava.controller.dto.ChangeAllowRegisterBean;
+import com.example.mindjava.entity.User;
+import com.example.mindjava.service.UserService;
 import org.redisson.Redisson;
 import org.redisson.api.RBucket;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,9 @@ public class ManagerController {
     @Resource
     private Redisson redisson;
 
+    @Resource
+    private UserService userService;
+
     private static final String allowRegisterKey = "manager:allow:register";
 
     @GetMapping("allowRegister")
@@ -37,5 +43,11 @@ public class ManagerController {
         RBucket<Boolean> bucket = redisson.getBucket(allowRegisterKey);
         bucket.set(changeAllowRegisterBean.getAllowRegister());
         return ResultBean.success();
+    }
+
+    @PostMapping("pageUserInfo")
+    public ResultBean<IPage<User>> pageUserInfo(@RequestBody User user) {
+        IPage<User> userIPage = userService.pageUserInfo(user);
+        return ResultBean.success(userIPage);
     }
 }

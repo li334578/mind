@@ -1,12 +1,14 @@
 package com.example.mindjava.entity;
 
 import cn.hutool.core.date.DateTime;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.example.mindjava.bean.BaseBean;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @Date 2023-08-10 13:22
@@ -50,5 +52,11 @@ public class User extends BaseBean<User> {
      * 最后一次登录时间
      */
     private LocalDateTime lastLoginTime;
+
+    /**
+     * 角色列表
+     */
+    @TableField(exist = false)
+    private List<Role> roleList;
 
 }
