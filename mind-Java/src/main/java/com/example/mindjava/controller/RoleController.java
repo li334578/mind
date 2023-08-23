@@ -4,6 +4,7 @@ package com.example.mindjava.controller;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.mindjava.bean.ResultBean;
 import com.example.mindjava.entity.Role;
@@ -44,9 +45,14 @@ public class RoleController {
      * @return 所有数据
      */
     @PostMapping("/page")
-    public ResultBean pageRole(@RequestBody Role role) {
+    public ResultBean<IPage<Role>> pageRole(@RequestBody Role role) {
         Page<Role> rolePage = new Page<>(role.getCurrentPage(), role.getPageSize());
         return ResultBean.success(roleService.page(rolePage, new QueryWrapper<>(role)));
+    }
+
+    @PostMapping("/list")
+    public ResultBean<List<Role>> listRole(@RequestBody Role role){
+        return ResultBean.success(roleService.list(new QueryWrapper<>(role)));
     }
 
     /**
@@ -56,7 +62,7 @@ public class RoleController {
      * @return 单条数据
      */
     @GetMapping("{id}")
-    public ResultBean selectOne(@PathVariable Long id) {
+    public ResultBean<Role> selectOne(@PathVariable Long id) {
         return ResultBean.success(roleService.getById(id));
     }
 
@@ -67,7 +73,7 @@ public class RoleController {
      * @return 新增结果
      */
     @PostMapping
-    public ResultBean insert(@RequestBody Role role) {
+    public ResultBean<Boolean> insert(@RequestBody Role role) {
         return ResultBean.success(roleService.save(role));
     }
 
@@ -78,7 +84,7 @@ public class RoleController {
      * @return 修改结果
      */
     @PutMapping
-    public ResultBean update(@RequestBody Role role) {
+    public ResultBean<Boolean> update(@RequestBody Role role) {
         return ResultBean.success(roleService.updateById(role));
     }
 
@@ -89,7 +95,7 @@ public class RoleController {
      * @return 删除结果
      */
     @DeleteMapping
-    public ResultBean delete(@RequestParam("idList") List<Long> idList) {
+    public ResultBean<Boolean> delete(@RequestParam("idList") List<Long> idList) {
         if (CollUtil.isEmpty(idList)) {
             throw new IllegalArgumentException("id列表为空");
         }

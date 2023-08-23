@@ -2,8 +2,9 @@
   <div id="app">
     是否允许注册:
     <a-switch :checked="initChecked" checked-children="开" un-checked-children="关" @change="changeAllowRegister"/>
-    <p></p>
-    <a-table :columns="columns" :data-source="userList">
+    <hr>
+    <p>用户管理</p>
+    <a-table :pagination="userPagination" @change="updateUserTable" :columns="userColumns" :data-source="userList">
       <a slot="nickName" slot-scope="text">{{ text }}</a>
       <span slot="customTitle"><a-icon type="smile-o"/> 昵称</span>
       <span slot="roleList" slot-scope="roleList">
@@ -16,11 +17,37 @@
       </a-tag>
     </span>
       <span slot="action" slot-scope="text, record">
-      <a>添加角色</a>
+      <a @click="showAddUserRoleDialog(record)">添加角色</a>
       <a-divider type="vertical"/>
       <a>删除用户</a>
     </span>
     </a-table>
+    <hr>
+    <p>角色管理</p>
+    <a-table :pagination="rolePagination" @change="updateRoleTable" :columns="roleColumns" :data-source="roleList">
+      <span slot="action" slot-scope="text, record">
+      <a>删除角色</a>
+    </span>
+    </a-table>
+
+    <a-modal v-model="visibleAddUserRole" :destroyOnClose="true" :title=this.currentDialogUser.title ok-text="确认"
+             cancel-text="取消"
+             @ok="confirmUpdateUserRole"
+             destroyOnClose:=true>
+      <a-select
+        mode="multiple"
+        size="default"
+        placeholder="请选择"
+        :defaultValue="this.defaultSelectRole"
+        style="width: 200px"
+        @change="handleChange"
+        @popupScroll="popupScroll"
+      >
+        <a-select-option v-for="role in this.allRoleList" :key="role.id">
+          {{ role.roleName }}
+        </a-select-option>
+      </a-select>
+    </a-modal>
   </div>
 </template>
 
@@ -30,7 +57,11 @@ export default {
   data() {
     return {
       initChecked: undefined,
-      columns: [
+      visibleAddUserRole: false,
+      currentDialogUser: {
+        title: ""
+      },
+      userColumns: [
         {
           dataIndex: 'nickName',
           key: 'nickName',
@@ -64,7 +95,46 @@ export default {
           scopedSlots: {customRender: 'action'},
         },
       ],
-      userList: []
+      roleColumns: [
+        {
+          title: '角色名称',
+          dataIndex: 'roleName',
+          key: 'roleName',
+        },
+        {
+          title: '角色编码',
+          dataIndex: 'roleCode',
+          key: 'roleCode',
+        },
+        {
+          title: '操作',
+          key: 'action',
+          scopedSlots: {customRender: 'action'},
+        },
+      ],
+      userList: [],
+      roleList: [],
+      allRoleList: [],
+      defaultSelectRole: [],
+      newSelectRole: [],
+      userPagination: {
+        current: 1,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        defaultPageSize: 10,
+        total: 0,
+        pageSize: 10,
+        showTotal: total => `共 ${total} 条数据`,
+      },
+      rolePagination: {
+        current: 1,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        defaultPageSize: 10,
+        total: 0,
+        pageSize: 10,
+        showTotal: total => `共 ${total} 条数据`,
+      },
     };
   },
   methods: {
@@ -77,17 +147,72 @@ export default {
       this.initChecked = checked;
     },
     getUserPage() {
-      this.$axios.post("/manager/pageUserInfo", {"currentPage": 1, "pageSize": 10}).then((res) => {
-        console.log(res);
-        this.userList = res.data.records;
+      let pageRequest = {
+        currentPage: this.userPagination.current,
+        pageSize: this.userPagination.pageSize,
+      }
+      this.$axios.post("/manager/pageUserInfo", pageRequest).then((res) => {
+        this.userList = res.data.records
+        this.userPagination.total = res.data.total
       })
-    }
+    },
+    getRolePage() {
+      let pageRequest = {
+        currentPage: this.rolePagination.current,
+        pageSize: this.rolePagination.pageSize,
+      }
+      this.$axios.post("/role/page", pageRequest).then((res) => {
+        this.roleList = res.data.records
+        this.rolePagination.total = res.data.total
+      })
+    },
+    getRoleList() {
+      this.$axios.post("/role/list", {}).then((res) => {
+        this.allRoleList = res.data;
+      })
+    },
+    updateUserTable(value) {
+      this.userPagination = value
+      this.getUserPage();
+    },
+    updateRoleTable(value) {
+      this.rolePagination = value
+      this.getRolePage();
+    },
+    showAddUserRoleDialog(value) {
+      this.visibleAddUserRole = true
+      this.currentDialogUser = value;
+      this.currentDialogUser.title = "给 [" + this.currentDialogUser.nickName + "] 分配角色"
+      this.getRoleList()
+      this.defaultSelectRole = this.currentDialogUser.roleList.map((item) => item.id)
+    },
+    handleChange(value) {
+      this.newSelectRole = value;
+      console.log(`Selected: ${value}`);
+    },
+    popupScroll() {
+      console.log('popupScroll');
+    },
+    confirmUpdateUserRole() {
+      // 更新用户的角色信息
+      this.$axios.post("/manager/updateToleToUser",
+        {"userId": this.currentDialogUser.id, "roleIdList": this.newSelectRole}).then((res) => {
+        this.visibleAddUserRole = false
+        if (res.success) {
+          this.$message.success("更新成功");
+        }else {
+          this.$message.error("更新失败");
+        }
+        this.getUserPage()
+      });
+    },
   },
   mounted: function () {
     this.$axios.get("/manager/allowRegister").then((res) => {
       this.initChecked = res.data;
     })
     this.getUserPage();
+    this.getRolePage();
   }
 }
 </script>
