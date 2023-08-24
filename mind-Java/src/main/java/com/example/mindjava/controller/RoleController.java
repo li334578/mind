@@ -11,13 +11,12 @@ import com.example.mindjava.entity.Role;
 import com.example.mindjava.entity.UserRole;
 import com.example.mindjava.service.RoleService;
 import com.example.mindjava.service.UserRoleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.Serializable;
 import java.util.List;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Objects;
 
 
 /**
@@ -51,7 +50,7 @@ public class RoleController {
     }
 
     @PostMapping("/list")
-    public ResultBean<List<Role>> listRole(@RequestBody Role role){
+    public ResultBean<List<Role>> listRole(@RequestBody Role role) {
         return ResultBean.success(roleService.list(new QueryWrapper<>(role)));
     }
 
@@ -74,6 +73,12 @@ public class RoleController {
      */
     @PostMapping
     public ResultBean<Boolean> insert(@RequestBody Role role) {
+        // 查询角色名和编码是否重复
+        Role dbRole = roleService.getOne(new LambdaQueryWrapper<Role>().eq(Role::getRoleName, role.getRoleName())
+                .or().eq(Role::getRoleCode, role.getRoleCode()));
+        if (Objects.nonNull(dbRole)) {
+            throw new IllegalArgumentException("角色名或者编码已存在");
+        }
         return ResultBean.success(roleService.save(role));
     }
 

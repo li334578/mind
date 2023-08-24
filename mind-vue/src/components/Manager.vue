@@ -1,9 +1,10 @@
 <template>
   <div id="app">
-    是否允许注册:
-    <a-switch :checked="initChecked" checked-children="开" un-checked-children="关" @change="changeAllowRegister"/>
-    <hr>
-    <p>用户管理</p>
+    <h2>用户管理</h2>
+    <div style="margin-bottom: 1%">
+      是否允许注册:
+      <a-switch :checked="initChecked" checked-children="开" un-checked-children="关" @change="changeAllowRegister"/>
+    </div>
     <a-table :pagination="userPagination" @change="updateUserTable" :columns="userColumns" :data-source="userList">
       <a slot="nickName" slot-scope="text">{{ text }}</a>
       <span slot="customTitle"><a-icon type="smile-o"/> 昵称</span>
@@ -17,16 +18,19 @@
       </a-tag>
     </span>
       <span slot="action" slot-scope="text, record">
-      <a @click="showAddUserRoleDialog(record)">添加角色</a>
+      <a @click="showAddUserRoleDialog(record)">修改角色</a>
       <a-divider type="vertical"/>
       <a>删除用户</a>
     </span>
     </a-table>
     <hr>
-    <p>角色管理</p>
+    <h2>角色管理</h2>
+    <a-button type="primary" style="margin-bottom: 1%" @click="showAddRoleDialog">
+      添加角色
+    </a-button>
     <a-table :pagination="rolePagination" @change="updateRoleTable" :columns="roleColumns" :data-source="roleList">
       <span slot="action" slot-scope="text, record">
-      <a>删除角色</a>
+      <a @click="deleteRole(record)">删除角色</a>
     </span>
     </a-table>
 
@@ -48,6 +52,18 @@
         </a-select-option>
       </a-select>
     </a-modal>
+
+    <a-modal v-model="visibleAddRole" :destroyOnClose="true" title="添加角色" ok-text="确认"
+             cancel-text="取消"
+             @ok="commitRoleBean"
+             destroyOnClose:=true>
+      <a-form-item label="角色名">
+        <a-input v-model="addRoleBean.roleName" placeholder="请输入角色名"/>
+      </a-form-item>
+      <a-form-item label="角色编码">
+        <a-input v-model="addRoleBean.roleCode" placeholder="请输入角色编码"/>
+      </a-form-item>
+    </a-modal>
   </div>
 </template>
 
@@ -58,6 +74,7 @@ export default {
     return {
       initChecked: undefined,
       visibleAddUserRole: false,
+      visibleAddRole: false,
       currentDialogUser: {
         title: ""
       },
@@ -135,6 +152,10 @@ export default {
         pageSize: 10,
         showTotal: total => `共 ${total} 条数据`,
       },
+      addRoleBean: {
+        roleName: "",
+        roleCode: "",
+      },
     };
   },
   methods: {
@@ -200,12 +221,36 @@ export default {
         this.visibleAddUserRole = false
         if (res.success) {
           this.$message.success("更新成功");
-        }else {
+        } else {
           this.$message.error("更新失败");
         }
         this.getUserPage()
       });
     },
+    deleteRole(value) {
+      console.log(value)
+      this.$axios.delete("/role?idList=" + [value.id]).then((res) => {
+        if (res.success) {
+          this.$message.success("删除成功");
+          this.getRolePage();
+        } else {
+          this.$message.error("删除失败");
+        }
+      })
+    },
+    showAddRoleDialog() {
+      this.visibleAddRole = true
+    },
+    commitRoleBean() {
+      this.$axios.post("/role", this.addRoleBean).then((res) => {
+        if (res.success) {
+          this.$message.success("添加成功");
+          this.visibleAddRole = false
+          this.addRoleBean = {}
+          this.getRolePage();
+        }
+      })
+    }
   },
   mounted: function () {
     this.$axios.get("/manager/allowRegister").then((res) => {
