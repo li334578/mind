@@ -8,7 +8,11 @@ import cn.hutool.crypto.digest.MD5;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.mindjava.bean.ResultBean;
 import com.example.mindjava.bean.ResultCode;
+import com.example.mindjava.entity.Role;
 import com.example.mindjava.entity.User;
+import com.example.mindjava.entity.UserRole;
+import com.example.mindjava.service.RoleService;
+import com.example.mindjava.service.UserRoleService;
 import com.example.mindjava.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,13 +34,12 @@ public class UserController {
     @Resource
     private UserService userService;
     @Resource
+    private UserRoleService userRoleService;
+    @Resource
+    private RoleService roleService;
+    @Resource
     private ExecutorService executorService;
     private final MD5 md5 = SecureUtil.md5();
-
-    @GetMapping("list")
-    public ResultBean list() {
-        return ResultBean.success(userService.list());
-    }
 
     @PostMapping("doLogin")
     public ResultBean<SaTokenInfo> doLogin(@RequestBody User user) {
@@ -66,6 +69,14 @@ public class UserController {
         user.setStatus(1);
         user.setLoginCount(0);
         userService.save(user);
+        // 写入角色信息
+        executorService.execute(() -> {
+            Role commonUserRole = roleService.getCommonUser();
+            UserRole userRole = new UserRole();
+            userRole.setUserId(user.getId());
+            userRole.setRoleId(commonUserRole.getId());
+            userRoleService.save(userRole);
+        });
         return ResultBean.success();
     }
 

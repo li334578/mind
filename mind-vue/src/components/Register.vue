@@ -99,17 +99,17 @@ export default {
         } else {
           allowRegister = true;
         }
+        if (allowRegister) {
+          e.preventDefault();
+          this.form.validateFields((err, values) => {
+            if (!err) {
+              this.$axios.post("/user/doRegister", values).then((res) => {
+                this.$message.success("注册成功");
+              })
+            }
+          });
+        }
       })
-      if (allowRegister) {
-        e.preventDefault();
-        this.form.validateFields((err, values) => {
-          if (!err) {
-            this.$axios.post("/user/doRegister", values).then((res) => {
-              this.$message.success("注册成功");
-            })
-          }
-        });
-      }
     },
   },
 };
